@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use app\Models\User;
+use App\Models\User;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     public function index()
     {
-        // collect all users on val name users
-        $user = User::all();
+        // collect all user$users on val name users
+        $users = User::all();
 
         // return to the client response
-        return response()->json(['data' => $user]);
+        return response()->json(['data' => $users]);
         
     }
 
@@ -39,16 +40,70 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $name)
+    public function show($id)
     {
-        $update = User::find($name);
-        $update->name = ($name) + "to london";
-        $update->save();
+        //step 1 search for user
+        //step 2 return user information to client
+
+        //step 1
+        $users = User::findorfail($id);
+
+        //step 2
+        return response()->json([
+            'data' => $users
+        ]);
+
     }
 
-    public function delete(Request $name)
+    public function update(Request $request, $id)
     {
-        $delete = User::find($name);
-        $delete->delete();
+        //step 1 validate data
+        //step 2 search for user
+        //step 3 update user data
+        //step 4 return to client success msg
+
+        //step 1
+        $input = $request->validate([
+            'name' => ['string'],
+            'email' => ['string','email', Rule::unique( 'users', 'email') ->ignore($id)]
+        ]);
+
+        //step 2
+        $users = User::findorfail($id);
+
+        //step 3
+        $users->update($input);
+        return response()->json([
+            'User updated succefully'
+        ]);
+
+        //step 4
+
+
+
+        // $update = User::find($name);
+        // $update->name = ($name) + "to london";
+        // $update->save();
+    }
+
+    public function delete($id)
+    {
+        //step 1 search for the user
+        //step 2 delete the user
+        //step 3 return msg to client
+
+        //step 1
+        $users = User::findorfail($id);
+
+        //step 2
+        $users->delete();
+
+        //step 3
+        return response()->json([
+            'data' => 'user deleted successfully'
+        ]);
+        
+        // $delete = User::find($name);
+        // $delete->delete();
     }
 }
